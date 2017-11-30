@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{614EE408-EA57-43D0-8932-39FDACE1DE3C}</ProjectGuid>
+    <ProjectGuid>{697B4224-C451-4BFB-850A-0679C1A650CF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>BoDucApp01</RootNamespace>
+    <RootNamespace>ReadAndSort</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -74,14 +74,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(BOOST_ROOT);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_ROOT)\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(BOOST_ROOT);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_ROOT)\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,9 +105,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>F:\Build\Boost\VS2015_64\boost_1_59_0;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,9 +141,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>F:\Build\Boost\VS2015_64\boost_1_59_0;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,7 +154,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BoducMain.cpp" />
+    <ClCompile Include="BoDucApp.cpp" />
+    <ClCompile Include="BoDucFindAlgo.cpp" />
+    <ClCompile Include="BoDucParsingAlgo.cpp" />
+    <ClCompile Include="BoDucSignatureSplit.cpp" />
+    <ClCompile Include="MainApp.cpp" />
+    <ClCompile Include="SimpleParseCSV.cpp" />
+    <ClCompile Include="Test\TestTrim.cpp" />
+    <ClCompile Include="VictoBonLivraison.cpp" />
+    <ClCompile Include="VictoReader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BoDucApp.h" />
+    <ClInclude Include="BoDucParsingAlgo.h" />
+    <ClInclude Include="BoDucReader.h" />
+    <ClInclude Include="BoDucSignatureSplit.h" />
+    <ClInclude Include="BoDucWriter.h" />
+    <ClInclude Include="BonLivraisonAlgorithm.h" />
+    <ClInclude Include="ParseCSV.hpp" />
+    <ClInclude Include="StructUtils.h" />
+    <ClInclude Include="TestBoostStringAlgo.h" />
+    <ClInclude Include="VictoBonLivraison.h" />
+    <ClInclude Include="VictoReader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -240,3 +240,7 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/BoDucApp01/ReadAndSort/Result_test
+/BoDucApp01/ReadAndSort/DataToTest
+/BoDucApp01/ReadAndSort/ListeClientsBoDucTransport.xlsx
+/BoDucApp/
