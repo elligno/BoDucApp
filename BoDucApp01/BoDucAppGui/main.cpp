@@ -1,0 +1,10 @@
+#include "BoDucAppGui.h"
+#include <QtWidgets/QApplication>
+
+int main(int argc, char *argv[])
+{
+	QApplication a(argc, argv);
+	BoDucAppGui w;
+	w.show();
+	return a.exec();
+}
