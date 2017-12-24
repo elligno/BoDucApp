@@ -326,50 +326,78 @@
 			using namespace boost;
 			using namespace boost::algorithm;
 
-			if( contains(aFieldValue, std::string("TM")))
-			{
-				std::vector<std::string> w_splitStr;
-				boost::split(w_splitStr, aFieldValue, boost::is_any_of(","));
-
-				// remove all empty string, then we have as first element the "TM" string
-				// just after we have the qty and silo 
-				w_splitStr.erase(std::remove_if(w_splitStr.begin(), w_splitStr.end(), // delete empty element
-					[](const std::string& s)
-				{ return s.empty(); }), w_splitStr.cend());
-
-				auto w_look4TM = std::find(w_splitStr.cbegin(), w_splitStr.cend(), std::string("TM"));
-				++w_look4TM;
-				aBoducF.m_qty = std::stof(*w_look4TM++); // ready for next value
-
-				// NOTE: some of the silo number has the following format "03"
-				// want to remove the first character since it is not relevant
-				// IMPORTANT: we have also the following case: 10 and higher
-				// need to consider this case
-			  // Line below search for a zero, but we need to first check 
-				// for the format xx which can be 03 or 10.
-				// First check if the string has a size of 2
-				// if so first element is zero, otherwise we have a silo number 
-				// greater than 0.
-				std::string::size_type w_doubleNum = (*w_look4TM).size();
-				if( w_doubleNum > 1) // more than one digit
+				if( contains(aFieldValue, std::string("TM")) || // keyword to look for
+					  contains(aFieldValue, std::string("TON")))
 				{
-					// first char is 0?
-					char w_firstDigit = (*w_look4TM)[0];
-					if (w_firstDigit == '0') // silo number in the range [0,...,9] but with double format
+					std::vector<std::string> w_splitStr;
+					boost::split( w_splitStr, aFieldValue, boost::is_any_of(","));
+
+					// remove all empty string, then we have as first element the "TM" string
+					// just after we have the qty and silo 
+					w_splitStr.erase(std::remove_if(w_splitStr.begin(), w_splitStr.end(), // delete empty element
+						[](const std::string& s)
+					{ return s.empty(); }), w_splitStr.cend());
+					
+// 					assert(4 == w_splitStr.size());
+// 					w_splitStr.pop_front(); // remove first element not relevant
+// 					assert(w_splitStr.size == 3); // "TM" or "TON" is the first element
+
+					auto w_look4TM = std::find(w_splitStr.cbegin(), w_splitStr.cend(), std::string("TM"));
+					if (w_look4TM!=w_splitStr.cend())
 					{
-						// then remove it (not consider it)
-						aBoducF.m_silo = (*w_look4TM)[1];
+						++w_look4TM;
+					}
+					else // switch to another keyword
+					{
+						w_look4TM = std::find(w_splitStr.cbegin(), w_splitStr.cend(), std::string("TON"));
+						if( w_look4TM==w_splitStr.cend())
+						{
+							return; // can't find anything at this point something wrong!!
+						}
+					}
+					++w_look4TM;
+
+					aBoducF.m_qty = std::stof(*w_look4TM++); // ready for next value
+					//aBoducF.m_qty = std::stof(w_splitStr[1]);  second element is quantity 
+
+					// NOTE: some of the silo number has the following format "03"
+					// want to remove the first character since it is not relevant
+					// IMPORTANT: we have also the following case: 10 and higher
+					// need to consider this case
+					// Line below search for a zero, but we need to first check 
+					// for the format xx which can be 03 or 10.
+					// First check if the string has a size of 2
+					// if so first element is zero, otherwise we have a silo number 
+					// greater than 0.
+					
+					//std::string::size_type w_doubleNum = (*w_look4TM).size();
+					//std::string::size_type w_doubleNum = w_splitStr[2].size();
+					std::locale loc; // count number of digit
+					auto w_doubleNum = std::count_if( w_look4TM->cbegin(), w_look4TM->cend(),
+						[loc](unsigned char c) { return std::isdigit(c, loc); }
+					);
+					
+					if (w_doubleNum > 1) // more than one digit
+					{
+						// first char is 0?
+						char w_firstDigit = (*w_look4TM)[0];
+						if (w_firstDigit == '0') // silo number in the range [0,...,9] but with double format
+						{
+							// then remove it (not consider it)
+							aBoducF.m_silo = (*w_look4TM)[1];
+						}
+						else
+						{
+							// we have a silo number >=10
+							aBoducF.m_silo = (*w_look4TM);
+						}
 					}
 					else
 					{
-						// we have a silo number >=10
-						aBoducF.m_silo = (*w_look4TM);
+						aBoducF.m_silo = *w_look4TM; // silo number in the range [1,...,9]
 					}
-				}
-				else
-				{
-					aBoducF.m_silo = *w_look4TM; // silo number in the range [1,...,9]
-				}
+	//				break; // found it, get out
+//				}
 #if 0
 				if ((*w_look4TM).find("0") != std::string::npos)
 				{

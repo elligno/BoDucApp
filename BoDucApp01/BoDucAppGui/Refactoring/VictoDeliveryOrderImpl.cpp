@@ -75,6 +75,7 @@ namespace bdGui
 				}
 				if( ::strcmp((*begKeywords).c_str(), "Shipped to") == 0)
 				{
+					//TODO: need to be fix
 					std::vector<std::string> w_addressPart;// fillAddressPartVec(begVec);
 					// reader is a ...
 					w_boducReader->readShippedTo(w_addressPart, aBoDucField);

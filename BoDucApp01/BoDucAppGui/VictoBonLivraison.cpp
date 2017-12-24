@@ -12,10 +12,11 @@
 #include <boost/algorithm/string.hpp> // string algorithm
 #include <boost/algorithm/string/split.hpp> // splitting algo
 // App includes
-#include "VictoReader.h"
+//#include "VictoReader.h"
+#include "BoDucReaderfix.h" // include VictoReader
 #include "BoDucFields.h"
 #include "VictoBonLivraison.h"
-#include "Refactoring/TestAddressParserImpl.h"
+//#include "Refactoring/TestAddressParserImpl.h"
 
 bdGui::VictoBonLivraison::VictoBonLivraison()
 : m_fieldKey({ "No Command","Shipped to","Date promise","produit et description" })
@@ -51,7 +52,8 @@ void bdGui::VictoBonLivraison::fillBoDucFields( const std::vector<std::string>& 
 	// Reader support algorithm to do that job
 #if 1
 	// create a reader to retrieve field value 
-	unique_ptr<BoDucReader> w_boducReader = make_unique<VictoReader>();
+	//unique_ptr<BoDucReader> w_boducReader = make_unique<VictoReader>(); original version
+	unique_ptr<BoDucReader> w_boducReader = make_unique<BoDucReaderFix>(); // support algorithm for malfunctions in the Shipped To field
 #else
 	// new implementation of the rebuildShippedTo() method
 	unique_ptr<BoDucReader> w_boducReader = make_unique<TestShippedToImpl>();
@@ -145,10 +147,10 @@ void bdGui::VictoBonLivraison::fillBoDucFields( const std::vector<std::string>& 
 						
 						// we are reading the value field for quantity and silo number
 						auto w_lineVec = aCmdVec.cbegin() + vecPos;
-						while (w_lineVec != aCmdVec.cend())
+						while( w_lineVec != aCmdVec.cend())
 						{
 							w_boducReader->readQtySilo(*w_lineVec, aBoDucField);
-							if (aBoDucField.m_qty != 0.f && !aBoDucField.m_silo.empty())
+							if( aBoDucField.m_qty != 0.f && !aBoDucField.m_silo.empty())
 							{
 								break; // found it, no point to go further
 							}

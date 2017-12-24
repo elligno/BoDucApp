@@ -49,6 +49,7 @@ namespace bdGui
 // 		aVecStrPart += m_vecOfAddressPart[1] + std::string(" ");
 // 		aVecStrPart += m_vecOfAddressPart[2];
 	}
+#if 0
 
 	IBuildShippedToAlgo::adrstruct 
 		VictoBuildShippedToAlgo::twoLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc)
@@ -69,4 +70,6 @@ namespace bdGui
 		// check malfunctions list for this case
 		return AddressBuilder::AddressStruct();
 	}
-}
+
+#endif
+} // End of namespace

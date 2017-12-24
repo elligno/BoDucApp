@@ -64,7 +64,7 @@ namespace bdGui
 		auto begVec = aVecOfCmdLines.cbegin() + w_startStr;
 		while (begVec != aVecOfCmdLines.cend())
 		{
-			if(contains( *begVec, std::string("TM")))
+			if( contains( *begVec, std::string("TM")) || contains(*begVec, std::string("TON")))
 			{
 				retTM = true;
 				break;

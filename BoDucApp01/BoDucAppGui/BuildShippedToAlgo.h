@@ -14,15 +14,15 @@ namespace bdGui
 	{
 	public:
 		using stdvecstr = std::vector<std::string>;
-		using adrstruct = AddressBuilder::AddressStruct;
-		using AddressMalfunc = AddressParser::eMalfunctionsPattern;
+	//	using adrstruct = AddressBuilder::AddressStruct;
+		using AddressMalfunc = AddressParser::ePattern;
 	public:
 		// build the shipped address according to pattern
 		virtual void sixLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc)=0;
 		virtual void fiveLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc)=0;
 		virtual void fourLineslAgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc)=0;
 		virtual void threeLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc)=0;
-		virtual adrstruct twoLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc) = 0;
+//		virtual adrstruct twoLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc) = 0;
 	};
 
 	class VictoBuildShippedToAlgo : public IBuildShippedToAlgo
@@ -36,7 +36,7 @@ namespace bdGui
 		void fiveLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc) override;
 		void fourLineslAgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc) override;
 		void threeLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc) override;
-		adrstruct twoLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc) override;
+	//	adrstruct twoLinesAlgo( const stdvecstr& aVecStrPart, const AddressMalfunc aMalfunc) override;
 	protected:
 		// can be overloaded by subclass
 		// services provided (its not all clear in my mind, i put some thoughts)
@@ -46,6 +46,6 @@ namespace bdGui
 		virtual void splitAddress(/*boost token*/);
 	private:
 		std::vector<std::string> m_vecOfAddressPart;
-		AddressParser::mapfmt2malfunctions m_mapfmt2bugs;
+	//	AddressParser::mapfmt2malfunctions m_mapfmt2bugs;
 	};
 } // End of namespace

@@ -72,6 +72,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AddressAlgorithm.cpp" />
+    <ClCompile Include="AddressBuilder.cpp" />
     <ClCompile Include="AddressParser.cpp" />
     <ClCompile Include="BoDucApp.cpp" />
     <ClCompile Include="BoDucAppGui.cpp">
@@ -79,6 +81,7 @@
     </ClCompile>
     <ClCompile Include="BoDucFields.cpp" />
     <ClCompile Include="BoDucParser.cpp" />
+    <ClCompile Include="BoDucReaderfix.cpp" />
     <ClCompile Include="BoDucUtility.cpp" />
     <ClCompile Include="BoDucWriter.cpp" />
     <ClCompile Include="BuildShippedToAlgo.cpp" />
@@ -97,7 +100,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Refactoring\TestAddressParserImpl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Refactoring\TestTextParsercpp.cpp" />
     <ClCompile Include="Refactoring\VictoDeliveryOrderImpl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -129,6 +134,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AddressAlgorithm.h" />
     <ClInclude Include="AddressBuilder.h" />
     <ClInclude Include="AddressParser.h" />
     <ClInclude Include="BoDucApp.h" />
@@ -136,6 +142,7 @@
     <ClInclude Include="BoDucCsvReader.h" />
     <ClInclude Include="BoDucFields.h" />
     <ClInclude Include="BoDucParser.h" />
+    <ClInclude Include="BoDucReaderfix.h" />
     <ClInclude Include="BoDucUtility.h" />
     <ClInclude Include="BoDucWriter.h" />
     <ClInclude Include="BuildShippedToAlgo.h" />

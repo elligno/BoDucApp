@@ -91,6 +91,18 @@
     <ClCompile Include="BoDucUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AddressBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddressAlgorithm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Refactoring\TestTextParsercpp.cpp">
+      <Filter>Refactoring Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoDucReaderfix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="BoDucAppGui.h">
@@ -150,6 +162,12 @@
       <Filter>Refactoring Files</Filter>
     </ClInclude>
     <ClInclude Include="BoDucUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddressAlgorithm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoDucReaderfix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
