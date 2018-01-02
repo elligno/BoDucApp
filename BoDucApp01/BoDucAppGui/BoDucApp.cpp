@@ -61,7 +61,7 @@ namespace bdGui
 		else
 		{
 			// support to multiple files selection (vector of map)
-			for (mapIntVecstr w_mapofcmd : m_vecOfMap)
+			for( mapIntVecstr w_mapofcmd : m_vecOfMap)
 			{
 				// retrieve values 
 				w_boducParseAlgo.extractData(w_mapofcmd, w_bonLivraison.get());
@@ -70,6 +70,13 @@ namespace bdGui
 				//std::vector<BoDucFields> w_testFields;
 				w_bonLivraison->getBoDucStruct(m_reportData);
 			}
+		}
+
+		// application stay open and you read files, BoDucApp never destroy
+		// then all member never get destroy or empty. Need to force empty.
+		if( !m_vecOfMap.empty())
+		{
+			m_vecOfMap.clear();
 		}
 	}
 
@@ -148,11 +155,12 @@ namespace bdGui
 					{
 						// Transporteur name (BoDuc)
 						return (contains(aStr2Look, "NIR R-117971-3 TRSP CPB INC")
-							|| contains(aStr2Look, "NIR R-117971-3 TRANSPORT CPB")
-							|| contains(aStr2Look, "NIR R-117971-3 C.P.B."));      // sometime we have empty (blank field) string
+							   || contains(aStr2Look, "NIR R-117971-3 TRANSPORT CPB")
+							   || contains(aStr2Look, "NIR R-117971-3 C.P.B.")
+							   || contains(aStr2Look, "BODUC- ST-DAMASE"));              // sometime we have empty (blank field) string
 					};
 
-					if (any_of( w_vecStr.cbegin(), w_vecStr.cend(), checkTransportName))
+					if( any_of( w_vecStr.cbegin(), w_vecStr.cend(), checkTransportName))
 // 						[](const std::string& aStr2Look) -> bool     // lambda (anonymous) function
 // 					{
 // 						// Transporteur name (BoDuc)

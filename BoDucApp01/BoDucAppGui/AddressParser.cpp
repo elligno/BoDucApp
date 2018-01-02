@@ -2,7 +2,8 @@
 // Boost includes
 #include <boost/optional.hpp>
 #include <boost/algorithm/string.hpp>
-
+// Package includes
+#include "BoDucUtility.h"
 #include "AddressParser.h"
 
 using namespace bdGui;
@@ -79,6 +80,13 @@ void AddressParser::analyze()
 				}
 				else //4,6 lines
 				{
+					// check for COVILAC keyword
+					// for now there only one situation for this use case
+					// file jani_xxx.csv and i haven't seen this in another 
+					// situation (4-lines keyword).
+					// Based on the same algorithm as LIVRAISON keyword
+					// take the line below the keyword
+
 					// case 4-lines, second line can be screw up
 					m_pattern = ePattern::DuplAddressNonSymmetric;
 				}
@@ -229,12 +237,48 @@ bool AddressParser::isLastLineScrewUp()
 	const std::string& w_lastLine = m_vecPart.back();
 	std::vector<std::string> w_vecSplit;
 	boost::split(w_vecSplit,w_lastLine,boost::is_any_of(","));
-  if (w_vecSplit.size()>3)
+  if( w_vecSplit.size()>3)
   {
-		return true;
+		// case size==4 and line is not screw up
+		// we need to check the third element for white space
+		// elem[2] which can start with white spaces or postal 
+		// code then followed with white spaces, at this point 
+		// we have the last line screwed up.
+		// 1. check find first not of '' and check distance
+		// 2. 
+
+		const std::string w_thirdElem = w_vecSplit[2];
+		auto w_startWithBlank = w_thirdElem.find_first_not_of(' ');
+    if( w_thirdElem.find_first_not_of(' ') > 2)
+    {
+			return true; // line is screw up
+    }
+		else  // first element is the postal code
+		{
+			// take 7 character of the string
+			auto w_length = w_thirdElem.size();
+			auto begPostalCode = w_thirdElem.cbegin() + 1;
+			if( w_length>7)
+			{
+				std::advance(begPostalCode, 7); // postal code end
+			}
+			else
+			{
+			  std::advance(begPostalCode, 6); // postal code end
+			}
+			if( BoDucUtility::isPostalCode(std::string(w_thirdElem.cbegin(), begPostalCode)))
+			{
+				return true; // case that need to be fixed
+			}
+			else
+			{
+			  return false; // everything ok
+			}
+		}
   }
 	return false;
 }
+
 bool AddressParser::isFirstLineEndWithCode()
 {
 	const std::string& w_lastLine = m_vecPart.front();

@@ -343,7 +343,7 @@
 // 					assert(w_splitStr.size == 3); // "TM" or "TON" is the first element
 
 					auto w_look4TM = std::find(w_splitStr.cbegin(), w_splitStr.cend(), std::string("TM"));
-					if (w_look4TM!=w_splitStr.cend())
+					if( w_look4TM!=w_splitStr.cend())
 					{
 						++w_look4TM;
 					}
@@ -354,8 +354,12 @@
 						{
 							return; // can't find anything at this point something wrong!!
 						}
+						else
+						{
+							++w_look4TM;
+						}
 					}
-					++w_look4TM;
+					//++w_look4TM;
 
 					aBoducF.m_qty = std::stof(*w_look4TM++); // ready for next value
 					//aBoducF.m_qty = std::stof(w_splitStr[1]);  second element is quantity 
@@ -372,29 +376,39 @@
 					
 					//std::string::size_type w_doubleNum = (*w_look4TM).size();
 					//std::string::size_type w_doubleNum = w_splitStr[2].size();
-					std::locale loc; // count number of digit
-					auto w_doubleNum = std::count_if( w_look4TM->cbegin(), w_look4TM->cend(),
-						[loc](unsigned char c) { return std::isdigit(c, loc); }
-					);
-					
-					if (w_doubleNum > 1) // more than one digit
+
+					// check for empty string (Kalyan)
+					if( w_look4TM == w_splitStr.cend())
 					{
-						// first char is 0?
-						char w_firstDigit = (*w_look4TM)[0];
-						if (w_firstDigit == '0') // silo number in the range [0,...,9] but with double format
-						{
-							// then remove it (not consider it)
-							aBoducF.m_silo = (*w_look4TM)[1];
-						}
-						else
-						{
-							// we have a silo number >=10
-							aBoducF.m_silo = (*w_look4TM);
-						}
+						// means that we have a empty field
+						aBoducF.m_silo = "";
 					}
 					else
 					{
-						aBoducF.m_silo = *w_look4TM; // silo number in the range [1,...,9]
+						std::locale loc; // count number of digit
+						auto w_doubleNum = std::count_if(w_look4TM->cbegin(), w_look4TM->cend(),
+							[loc](unsigned char c) { return std::isdigit(c, loc); }
+						);
+
+						if (w_doubleNum > 1) // more than one digit
+						{
+							// first char is 0?
+							char w_firstDigit = (*w_look4TM)[0];
+							if (w_firstDigit == '0') // silo number in the range [0,...,9] but with double format
+							{
+								// then remove it (not consider it)
+								aBoducF.m_silo = (*w_look4TM)[1];
+							}
+							else
+							{
+								// we have a silo number >=10
+								aBoducF.m_silo = (*w_look4TM);
+							}
+						}
+						else
+						{
+							aBoducF.m_silo = *w_look4TM; // silo number in the range [1,...,9]
+						}
 					}
 	//				break; // found it, get out
 //				}
