@@ -280,6 +280,26 @@
 				}
 			}
 
+			// sometimes date format is different, not separated by back slash
+			// but by dash symbol. We need to check for this if string empty
+			// if the field is empty, check for dash separated to check date format 
+			if( aBoducF.m_datePromise.empty())
+			{
+				// new stuff we look for string of this type: 2017/10/23     00:00 or 2017/10/23 
+				for( std::string w_str2LookAt : strs)
+				{
+					//w_str2LookAt.find_first_of("/");
+					if( w_str2LookAt.find_first_of("-") != std::string::npos) // found it?
+					{
+						vector<string> w_datepromise;
+						// we found something, its probably the date format xxxx/xx/xx
+						split(w_datepromise, w_str2LookAt, is_any_of(" ")); // need to be split
+						aBoducF.m_datePromise = w_datepromise[0];
+						break; //get out since we found it 
+					}
+				}
+			}
+
 			// Most of the cases date and time is represented by the same string.
 			// In some rare case, there are split a part but in both case date is
 			// the second element. The case which date and time same string, the 

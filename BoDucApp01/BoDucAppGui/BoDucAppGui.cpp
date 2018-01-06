@@ -50,7 +50,7 @@ BoDucAppGui::BoDucAppGui( QWidget *parent)
 	// build file name with date, a new file name is use every day
 	// during the day user will be use the same file as he process
 	m_bonLivraisonFile = QString("BonLivraison_");
-	m_bonLivraisonFile += w_todayDate;
+//	m_bonLivraisonFile += w_todayDate;  add date at the end of the name
 	m_bonLivraisonFile += ".txt";
 }
 
@@ -86,154 +86,7 @@ void BoDucAppGui::saveCmdToFile()
 		m_open->setEnabled(true);
 	}
 	m_save->setEnabled(false);
-	// check if file exist, if so re-open it to append
-// 	QString w_reportToPrint = QFileDialog::getSaveFileName(this,
-// 		tr("Save Report File"), w_dir.absolutePath(),
-// 		tr("Delivery Report File (*.txt)"));
-
-//	QString w_absPath = w_dir.absoluteFilePath();
-
-	// file that user selected already exist
-// 	QString w_savedFfilePath = w_dir.absoluteFilePath(w_reportToPrint);
-// 	w_dir.setPath(w_savedFfilePath);
-
-	// create the report 
-	//m_bdApp.createReport(w_reportToPrint.toStdString());
-
-	// Use the QateTime to set file name with the following
-	// format ("BonLivraison_Date.txt"). Need to check if file 
-	// exist, if so, just add at the end of the file.
-	// Probably we need to find out the working directory.
-#if 0
-	QDir dir = QDir::current();
-	if (!dir.exists())
-	{
-		std::cerr << dir.path().toStdString() << " does not exist!" << std::endl;
-		//	usage();
-	}
-
-	QDir::Filters df = QDir::Files | QDir::NoDotAndDotDot;
-
-	QDirIterator qdi(dir.absolutePath(),
-		QStringList() << "*.txt",
-		QDir::NoSymLinks | QDir::Files,
-		QDirIterator::Subdirectories);
-	while (qdi.hasNext()) {
-		//	addTxtFile(qdi.next());
-	}
-#endif
 }
-#if 0 // new implementation of the save method
-void TestLayout::testSave()
-{
-	QDateTime w_currDateTime = QDateTime::currentDateTime();
-	QDate w_currentDate = w_currDateTime.date();
-	QString w_todayDate = w_currentDate.toString("ddMyy");  //use the following format
-
-	// build file name with date, a new file name is use every day
-	// during the day user will be use the same file as he process
-	QString w_bonLivraison("BonLivraison_");
-	w_bonLivraison += w_todayDate;
-	w_bonLivraison += ".txt";
-
-	// create file to write report
-	std::ofstream w_fileReport;
-
-	// setting default directory to start with (think it correspond to QtTesting folder)
-	// i need to check, which is the root directory
-	QString w_defaultDir = QDir::currentPath();
-
-	QDir::Filters df = QDir::Files | QDir::NoDotAndDotDot;
-	//	QString w_saveDir(w_defaultDir);
-	QDir w_savedDir(w_defaultDir);
-
-	// Actually what we want is to check if a directory exist, especially data folder 
-	if (w_savedDir.exists(QString("ReportFiles"))) // check if folder exist
-	{
-		w_savedDir.cd(QString("ReportFiles")); // step into folder
-		QString w_checkPAth = w_savedDir.dirName();
-		QString w_checkFullPath = w_savedDir.absolutePath();
-		std::cout << "Full path of the saved dir is: " << w_checkFullPath.toStdString().c_str() << "\n";
-
-		// setting filter to discard unwanted files or directory such as hidden one (.,..)
-		QDir::Filters w_dirFilters = QDir::Files | QDir::NoDotAndDotDot;
-		QStringList w_listOfentry = w_savedDir.entryList(w_dirFilters);
-		// instead of calling without arguments, i remember i had a problem
-		// with number of element in the folder
-		QStringList w_listOfentry = w_savedDir.entryList();
-		QFileInfoList w_listOfFileInfo = w_savedDir.entryInfoList(w_listOfentry);
-		//		QFileInfoList::const_iterator beginList = w_listOfFileInfo.cbegin();
-		QListIterator<QFileInfo> w_entryIterator(w_listOfFileInfo);
-		// go through entry of the folder and check file we are looking for
-		// Design Note: we should just check if exist and it will do  the same thing
-		// but we just want to experiment some Qt stuff
-		while (w_entryIterator.hasNext())
-		{
-			const QFileInfo& w_file2Check = w_entryIterator.next();
-			if (w_file2Check.isFile())
-			{
-				// check name
-				QString w_fileName = w_file2Check.fileName();
-				if (w_fileName.compare(w_bonLivraison) == 0) // equal
-				{
-					// since file exist, might as well re-open to write 
-					w_fileReport.open(w_bonLivraison.toStdString(), std::ios::out | std::ios::app); // create file and append
-																																													// sanity check
-					if (!w_fileReport.is_open())
-					{
-						std::cout << "Could not open file to append new stuff at the end of  the file\n";
-					}
-					w_fileReport << "+++++++++++++++++++++++++++++++" << "\n";
-					w_fileReport << "Just re-opened file for writing" << "\n";
-					w_fileReport << "a string to write as test" << "\n";
-					w_fileReport.close();
-				}
-			}
-		} //while-loop                                                                       
-	}
-	else // doesn't exist, then we need to create it
-	{
-		if (w_savedDir.mkdir(QString("ReportFiles")))
-		{
-			// folder created with success, save our report to this 
-			// change to report file folder
-			w_savedDir.cd(QString("ReportFiles")); // step into folder
-			QString w_dirPath = w_savedDir.absolutePath();
-			std::cout << "Full path of the saved dir is: " << w_dirPath.toStdString().c_str() << "\n";
-			// write our report
-			QFileInfo w_fileNameAndPath;
-			w_fileNameAndPath.setFile(w_savedDir, w_bonLivraison);
-			QString w_filePath = w_fileNameAndPath.absoluteFilePath();
-			w_fileReport.open(w_fileNameAndPath.absoluteFilePath().toStdString(), std::ios::out); // create file
-																																														// sanity check
-			if (!w_fileReport.is_open())
-			{
-				std::cout << "Could not open file for writing report\n";
-			}
-			w_fileReport << "Just open file since it doesn't exist" << "\n";
-			w_fileReport << "Writing a something as test" << "\n";
-			w_fileReport.close();
-		}
-	}
-
-	// check if a file exist based on date and the following format
-	// BonLivraison_date.txt
-
-	// user enter filename
-	// now opening file to be processed (name of the file returned)
-	m_bonLivraison = QFileDialog::getSaveFileName(this, tr("Save File"),
-		w_savedDir.dirName(),
-		tr("Text (*.txt)"));
-
-	std::cout << "Current date is : " << w_todayDate.toStdString() << std::endl;
-
-	// check all files and folder
-	//		QStringList w_folderContent = w_tstDir.entryList();
-	// 		if( w_folderContent.isEmpty())
-	// 		{
-	// 		}
-}
-#endif //testsave
 
 void BoDucAppGui::loadCmdFromFile()
 {
@@ -537,8 +390,8 @@ void BoDucAppGui::createDataReport()
 
 	QFileInfo w_fileRep(w_reportFolder, m_bonLivraisonFile);
 	
-	// 
-	if( !w_reportFolder.exists(m_bonLivraisonFile)) // file doesn't exist
+	// file doesn't exist
+	if( !w_reportFolder.exists(m_bonLivraisonFile)) 
 	{
 		QString w_filePath = w_fileRep.absoluteFilePath();
 		// create a new file with the given name
