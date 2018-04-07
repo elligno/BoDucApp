@@ -97,26 +97,6 @@ void BoDucAppGui::loadCmdFromFile()
 // 		QMessageBox w_loadMsg;
 // 	}
 
-// 	QFileInfo w_fileInfo(m_fileName);
-// 	QString w_fileFolder = w_fileInfo.path();
-// 	QString w_fileExt = w_fileInfo.suffix();
-// 
-// 	QFile w_file(m_fileName);
-// 	if( !w_file.open( QIODevice::ReadOnly | QIODevice::Text))
-// 	{
-// 		QMessageBox::information(this, tr("Unable to open file"),
-// 			w_file.errorString());
-// 
-// 		return;
-// 	}
-
-	// in comment now, not sure how i am going to integrate that
-// 	QTextStream in(&w_file);
-// 	while (!in.atEnd()) {
-// 		QString line = in.readLine();
-// 		processLine(line.toStdString()); must be something like that!! need to think about it
-// 	}
-	
 	if( m_filesName.size() > 1) // user selected more than one files
 	{
 		std::list<std::string> w_listFilesName;
@@ -129,12 +109,6 @@ void BoDucAppGui::loadCmdFromFile()
 			++w_begList;
 		}
 
-// 		QStringListIterator w_filesNameIterator(m_filesName);
-// 		while( w_filesNameIterator.hasNext())
-// 		{
-// 			std::cout << "Processing the following files: " << w_filesNameIterator.next().toLocal8Bit().constData() << std::endl;
-// 			w_listFilesName.push_back( w_filesNameIterator.next().toLocal8Bit().constData()); // implicit conversion from const char* to std::string
-// 		}
 		m_console->append("");
 		m_console->append("Starting to load files");
 
@@ -181,9 +155,6 @@ void BoDucAppGui::loadCmdFromFile()
 // by default all files for testing are located in a folder named "DataToTest"
 void BoDucAppGui::OpenCsvFile()
 {
-	// create a file dialog 
-	//m_openFile = new QFileDialog;
-
 	// setting default directory to start with (think it correspond to QtTesting folder)
 	// i need to check, which is the root directory of the VS15 project
 	QString w_defaultDir = QDir::currentPath();

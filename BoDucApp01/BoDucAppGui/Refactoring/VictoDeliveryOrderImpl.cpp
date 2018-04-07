@@ -58,7 +58,7 @@ namespace bdGui
 				if( ::strcmp((*begKeywords).c_str(), "Date") == 0) // correspond "No Command"
 				{
  					std::vector<std::string> w_dateTrimed =
- 						BoDucUtility::TrimRightCommaAndErase(*begVec);
+ 						BoDucUtility::TrimRightSplitAndErase(*begVec);
 
 					// check if first element is Date
 					if( boost::equals(w_dateTrimed[0], "Date"))

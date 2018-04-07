@@ -31,11 +31,6 @@ protected:
 	virtual void createGUI();
 private:
 	Ui::BoDucAppGuiClass ui;
-// 	QPushButton* m_startButton;
-// 	QPushButton* m_loadButton;
-// 	QPushButton* m_saveButton;
-// 	QString m_cmdFileName;
-// 	QDir* m_appDir; // set t BoDucApp folder as root
 	std::vector<std::string> m_vecStr;
 	// some of the widget in the layout
 	QPushButton* m_open;

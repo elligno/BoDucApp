@@ -152,6 +152,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Refactoring\VictoDeliveryOrderImpl.h" />
+    <ClInclude Include="utf8.h" />
+    <ClInclude Include="utf8\checked.h" />
+    <ClInclude Include="utf8\core.h" />
+    <ClInclude Include="utf8\unchecked.h" />
     <ClInclude Include="VictoBonLivraison.h" />
     <ClInclude Include="VictoReader.h" />
   </ItemGroup>

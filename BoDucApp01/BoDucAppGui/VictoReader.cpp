@@ -39,10 +39,10 @@
 
 			short linenb(0);
 			// need to check for "Date" first of (pair Date,No)
-			for (const string& w_checkStr : aCmdVec)
+			for( const string& w_checkStr : aCmdVec)
 			{
 				// looking for "Date" then break
-				if (contains(w_checkStr, "Date"))
+				if( contains(w_checkStr, "Date"))
 				{
 					linenb++; // line below which contains the command number
 					break;
@@ -59,7 +59,7 @@
 
 			// not sure about this one, after this we should have a vector of 2 elements
 			// because our search is based on a line that contains a pair (Date,No)
-			strs.erase(remove_if(strs.begin(), strs.end(), // delete empty element
+			strs.erase( remove_if(strs.begin(), strs.end(), // delete empty element
 				[](const string& s)
 			{ return s.empty(); }), strs.cend());
 
@@ -67,6 +67,18 @@
 			if( starts_with(strs.back(), string("CO")))
 			{
 				aBoducF.m_noCmd = strs.back(); //assume that the last field is the right one
+			}
+			else
+			{
+				// check next line (Fuchs case where line before contains a Date keyword also)
+				linenb++;
+				string w_fieldValue = aCmdVec[linenb];
+				readNoCmd( w_fieldValue, aBoducF);
+				if( aBoducF.m_noCmd.empty())
+				{
+					// we didn't read cmd no correctly, must do some action 
+					aBoducF.m_noCmd = "xxxxxxxx";
+				}
 			}
 		}
 
@@ -77,7 +89,7 @@
 			using namespace boost::algorithm;
 
 			std::vector<std::string> w_dateSplitted =
-				BoDucUtility::TrimRightCommaAndErase(aFieldValue);
+				BoDucUtility::TrimRightSplitAndErase(aFieldValue);
 
 			// boost::starts_with algorithm
 			if( starts_with(w_dateSplitted.back(), string("CO")))
@@ -86,40 +98,8 @@
 			}
 		}
 
-		void VictoReader::readShippedTo(const vecofstr& aFieldValue, BoDucFields& aBoducF)
+		void VictoReader::readShippedTo( const vecofstr& aFieldValue, BoDucFields& aBoducF)
 		{
-			using namespace std;
-			using namespace boost;
-			using namespace boost::algorithm;
-#if 0
-			std::string w_completeAddress;     // store part of the complete address
-			if( aFieldValue.size() > 2)
-			{
-				// we need to take the last 2 in most cases
-				using riter = std::reverse_iterator<std::vector<std::string>::const_iterator>;
-				riter w_lastPart = aFieldValue.crbegin() + 1;
-				w_completeAddress += *w_lastPart + std::string(" ");
-				w_lastPart = aFieldValue.rbegin();
-				w_completeAddress += *w_lastPart;
-				aBoducF.m_deliverTo = w_completeAddress; // assume that the last field is the right one 
-			}
-			else if (aFieldValue.size() == 2)
-			{
-				// rebuild the whole address
-				w_completeAddress += aFieldValue[0] + std::string(" ");
-				w_completeAddress += aFieldValue[1];
-				aBoducF.m_deliverTo = w_completeAddress; // assume that the last field is the right one 
-			}
-			else if (aFieldValue.size() == 1)
-			{
-				w_completeAddress += aFieldValue[0];
-				aBoducF.m_deliverTo = w_completeAddress; // assume that the last field is the right one
-			}
-			else
-			{
-				std::cout << "There is a problem with Customer address\n";
-			}
-#endif
 			// fill complete address
 			aBoducF.m_deliverTo = rebuildShippedTo(aFieldValue);
 		}

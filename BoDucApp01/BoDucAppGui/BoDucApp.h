@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <initializer_list>
 // App include
 #include "BoDucFields.h"
 
@@ -59,6 +60,8 @@ namespace bdGui
 
 		virtual void readFiles( const std::list<std::string>& aFilesNameWithPath,
 			const std::string& aSplitBill = "Ordered on");
+		
+		void readUtf8File( const std::string& aFileAnPath);
 
 		// Use the BoDuc writer for report formatting
 		virtual void createReport( const std::string& aBonDeLivraison = "BonDeLivraison.txt");
@@ -78,5 +81,16 @@ namespace bdGui
 		std::vector<BoDucFields> m_reportData;
 		BoDucBonLivraisonAlgorithm* m_bdParseAlgorithm;
 		unsigned short m_userSelectF;
+		std::string m_splitKeyword;
+		// shall set it in the ctor
+		std::initializer_list<std::string> m_transporteurNameValid; 
+// 		= { "NIR R-117971-3 TRSP CPB INC",
+// 		"NIR R-117971-3 TRANSPORT CPB",
+// 		"NIR R-117971-3 C.P.B.",
+// 		"BODUC- ST-DAMASE",
+// 		"NIR R-004489-2 TR. BO-DUC" };
+		// helper function 
+		bool valid_utf8_file(const char* file_name);
+		void fix_utf8_string(std::string& str);
 	};
 } // End of namespace

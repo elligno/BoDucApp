@@ -1,3 +1,5 @@
+#include <Windows.h>
+#include <codecvt>
 #include <vector>
 // boost includes
 #include <boost/lexical_cast.hpp>
@@ -9,7 +11,7 @@
 
 using namespace bdGui;
 
-std::vector<std::string> BoDucUtility::TrimRightCommaAndErase( const std::string & aStr2Trim)
+std::vector<std::string> BoDucUtility::TrimRightSplitAndErase( const std::string & aStr2Trim)
 {
 	using namespace std;
 	using namespace boost;
@@ -30,7 +32,7 @@ std::vector<std::string> BoDucUtility::TrimRightCommaAndErase( const std::string
 	return strs;
 }
 
-bool bdGui::BoDucUtility::isPostalCode(const std::string & aAddress)
+bool BoDucUtility::isPostalCode(const std::string & aAddress)
 {
 		// split with token = ,
 		// take last element of split vector and count 
@@ -72,4 +74,26 @@ bool bdGui::BoDucUtility::isPostalCode(const std::string & aAddress)
 			}
 		}
 		return false;
+}
+
+std::wstring BoDucUtility::ConvertFromUtf8ToUtf16( const std::string& str)
+{
+	std::wstring convertedString;
+	int requiredSize = MultiByteToWideChar( CP_UTF8, 0, str.c_str(), -1, 0, 0);
+	if( requiredSize > 0)
+	{
+		std::vector<wchar_t> buffer(requiredSize);
+		MultiByteToWideChar( CP_UTF8, 0, str.c_str(), -1, &buffer[0], requiredSize);
+		convertedString.assign( buffer.begin(), buffer.end() - 1);
 	}
+
+	return convertedString;
+}
+
+// same as above but using C++11/14 features
+std::wstring BoDucUtility::FromUtf8ToUtf16(const std::string & str)
+{
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> cwuf8;
+	std::wstring w_strConverted = cwuf8.from_bytes(str);
+	return w_strConverted;
+}

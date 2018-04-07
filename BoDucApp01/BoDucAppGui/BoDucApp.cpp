@@ -1,18 +1,33 @@
+#include <Windows.h>
 // C++ includes
 #include <iostream>
 #include <algorithm>
 #include <fstream>
 #include <string>
 #include <stdlib.h>
+#include <codecvt>
 // boost includes
 #include <boost/algorithm/string.hpp> // string algorithm
 #include <boost/algorithm/string/split.hpp> // splitting algo
+// Qt includes
+#include <QFileInfo>
+#include <QMessageBox>
 // app. includes
 #include "BoDucApp.h"
 #include "BoDucParser.h"
 #include "BoDucWriter.h"
+#include "BoDucUtility.h"
 #include "VictoBonLivraison.h"
+#include "utf8.h"
 
+// static declaration
+namespace { // check if it is a valid character
+	bool charPredicate(char c)
+	{
+		return !( isalpha(c) || c == '_');
+	}
+
+}
 namespace bdGui 
 {
 	BoDucApp::BoDucApp( const std::vector<std::string>& aVecOfilePath)
@@ -23,6 +38,11 @@ namespace bdGui
 		m_readPrm(), // BoDuc field
 		m_bdParseAlgorithm(nullptr)
 	{
+		m_transporteurNameValid = {"NIR R-117971-3 TRSP CPB INC",
+ 		"NIR R-117971-3 TRANSPORT CPB",
+ 		"NIR R-117971-3 C.P.B.",
+ 		"BODUC- ST-DAMASE",
+ 		"NIR R-004489-2 TR. BO-DUC" };
 	}
 
 	BoDucApp::BoDucApp( const std::string& aFile /*= "request-2.csv"*/)
@@ -67,7 +87,6 @@ namespace bdGui
 				w_boducParseAlgo.extractData(w_mapofcmd, w_bonLivraison.get());
 
 				// retrieve BoDuc fields
-				//std::vector<BoDucFields> w_testFields;
 				w_bonLivraison->getBoDucStruct(m_reportData);
 			}
 		}
@@ -80,26 +99,102 @@ namespace bdGui
 		}
 	}
 
+	bool BoDucApp::valid_utf8_file( const char* file_name)
+	{
+		using namespace std;
+
+		ifstream ifs(file_name);
+		if( !ifs)
+			return false; // even better, throw here
+
+		istreambuf_iterator<char> it(ifs.rdbuf());
+		istreambuf_iterator<char> eos;
+
+		return utf8::is_valid(it, eos);
+	}
+	void BoDucApp::fix_utf8_string(std::string& str)
+	{
+		std::string temp;
+		utf8::replace_invalid(str.begin(), str.end(), back_inserter(temp));
+		str = temp;
+	}
+	//https://www.codeproject.com/Articles/14637/UTF-With-C-in-a-Portable-Way
+	void BoDucApp::readUtf8File( const std::string& aFileAnPath)
+	{
+		using namespace std;
+
+		// Open the test file (contains UTF-8 encoded text)
+		ifstream fs8(aFileAnPath);
+
+		if (!fs8.is_open()) {
+			cout << "Could not open " << aFileAnPath << endl;
+			return;
+		}
+
+		unsigned line_count = 1;
+		string line;
+		// Play with all the lines in the file
+		while( getline(fs8, line)) {
+			// check for invalid utf-8 (for a simple
+			// yes/no check, there is also utf8::is_valid function)
+			string::iterator end_it =
+				utf8::find_invalid(line.begin(), line.end());
+			
+			if (end_it != line.end()) {
+				cout << "Invalid UTF-8 encoding detected at line "
+					<< line_count << "\n";
+				cout << "This part is fine: "
+					<< string(line.begin(), end_it) << "\n";
+			}
+
+			// Get the line length (at least for the valid part)
+			int length = utf8::distance(line.begin(), end_it);
+			cout << "Length of line " << line_count
+				<< " is " << length << "\n";
+
+			// Convert it to utf-16
+			vector<unsigned short> utf16line;
+			utf8::utf8to16(line.begin(), end_it, back_inserter(utf16line));
+		}
+	}
+
 	void BoDucApp::readFile( const std::string& aFileAnPath, const std::string& aSplitBill)
 	{
 		using namespace std;
 		using namespace boost;
 		using namespace boost::algorithm;
+		// create alias
+		using vecofstr = std::vector<std::string>;
+		// lambda (anonymous) function declaration
+		auto checkTransportName = [](const std::string& aStr2Look) -> bool
+		{
+			// Transporteur name (BoDuc)
+			return (contains(aStr2Look, "NIR R-117971-3 TRSP CPB INC")
+    			 || contains(aStr2Look, "NIR R-117971-3 TRANSPORT CPB")
+				   || contains(aStr2Look, "NIR R-117971-3 C.P.B.")
+				   || contains(aStr2Look, "BODUC- ST-DAMASE")
+				   || contains(aStr2Look, "NIR R-004489-2 TR. BO-DUC"));     //sometime we have empty (blank field) string
+		};
 
-		// if we are processing multiple command one app is running
-		// means we may have processed a command file, just clear last.
-		if( !m_fileName.empty())
+		if (!m_fileName.empty())
 		{
 			m_fileName.clear();
 		}
 
-		// csv file that we are processing
-		m_fileName = aFileAnPath;
+		// check for accent in file name, if so fix it
+		if( std::find_if( aFileAnPath.cbegin(), aFileAnPath.cend(), charPredicate) != aFileAnPath.cend())
+		{
+			// we have special character, need to fix name without accent
+			std::wstring w_utf8FileName = BoDucUtility::FromUtf8ToUtf16(aFileAnPath);
+			m_fileName.assign(w_utf8FileName.cbegin(), w_utf8FileName.cend());
+		}
+		else
+		{
+			// csv file that we are processing
+			m_fileName.assign(aFileAnPath.cbegin(), aFileAnPath.cend());
+		}
 
-		// create alias
-		using vecofstr = std::vector<std::string>;
-
-		// declare vector to store our string from cvs document 
+		// declare vector to store our string from csv document 
 		vecofstr w_vecStr;
 		w_vecStr.reserve(50); // reserve enough space for storing each line ??
 
@@ -120,12 +215,12 @@ namespace bdGui
 
 		// Command in one file, reading the command by splitting with the "Ordered on"
 		short i(0); // set to zero as default, otherwise set to whatever comes up
-		ifstream w_readVSV(aFileAnPath.c_str());
+		ifstream w_readVSV(m_fileName.c_str());
 		if( w_readVSV) // check if its open, then read line-by-line 
 		{
 			for( string line; std::getline(w_readVSV, line);)
 			{
-				if(i == 0) // first line is obsolete
+				if( i == 0) // first line is obsolete
 				{
 					// check if contains "Ordered on" as first line
 					// NOTE "request-2.csv" we split the bill with this token, 
@@ -144,44 +239,58 @@ namespace bdGui
 				// IMPORTANT this algorithm assume that we are at the end or the 
 				// last line (split into separate command is based on this assumption)
 				// if not the case then it won't work!!
-				if( contains(line, aSplitBill))
+				if( contains( line, aSplitBill))
 				{
 					// check for carrier name some are different and don't need to be treated
 					// Francois mentioned that field can be blank, need to be careful
-					// Also, we must check also for the "TM" tonne metrique, if not present
-					// the cmd is discarded
-					// lambda (anonymous) function declaration
-					auto checkTransportName = [](const std::string& aStr2Look) -> bool     
-					{
-						// Transporteur name (BoDuc)
-						return (contains(aStr2Look, "NIR R-117971-3 TRSP CPB INC")
-							   || contains(aStr2Look, "NIR R-117971-3 TRANSPORT CPB")
-							   || contains(aStr2Look, "NIR R-117971-3 C.P.B.")
-							   || contains(aStr2Look, "BODUC- ST-DAMASE"));              // sometime we have empty (blank field) string
-					};
-
 					if( any_of( w_vecStr.cbegin(), w_vecStr.cend(), checkTransportName))
-// 						[](const std::string& aStr2Look) -> bool     // lambda (anonymous) function
-// 					{
-// 						// Transporteur name (BoDuc)
-// 						return (contains(aStr2Look, "NIR R-117971-3 TRSP CPB INC")
-// 							   || contains(aStr2Look, "NIR R-117971-3 TRANSPORT CPB")
-// 							   || contains(aStr2Look, "NIR R-117971-3 C.P.B."));      // sometime we have empty (blank field) string
-// 					}
-//					)//any_of
-//						)//if
 					{
 						m_mapintVec.insert(make_pair(i++, w_vecStr));
 						w_vecStr.clear();
 					}
 					else
 					{
-						/*w_mapofCmd.insert(std::make_pair(i++,w_vecStr));*/
+						QMessageBox w_msgBname;
+						QFileInfo w_filExtract(aFileAnPath.c_str());
+						const QString w_fileName = w_filExtract.fileName();
+						QString w_strMsg = QString("Not a valid transporteur name in ") + w_fileName;
+						w_msgBname.setText(w_strMsg);
+						w_msgBname.setIcon(QMessageBox::Warning);
+						w_msgBname.exec();
+						// ready for the next iteration
 						w_vecStr.clear();
 					}
 				}
 			}//for-loop
 		}//if
+ 		else // file could not be opened because name invalid or something else
+ 		{    
+ 			QMessageBox msgBox;
+ 			QFileInfo w_filExtract(aFileAnPath.c_str());
+ 			const QString w_fileName = w_filExtract.fileName();
+ 			QString w_strMsg = QString("The document ") + w_fileName + QString(" could not be opened.");
+ 			msgBox.setText(w_strMsg);
+ 			msgBox.setInformativeText("We try to fix it, do you want to proceed?");
+ 			msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+ 			msgBox.setIcon(QMessageBox::Warning);
+ 			int ret = msgBox.exec();
+// 			// ...
+// 			switch( ret)
+// 			{
+// 			case QMessageBox::Ok:
+// 			{
+// 				// this is a temporary fix for the bugs about file name with accent 
+// 				m_splitKeyword = aSplitBill;
+// 
+// 			case QMessageBox::Cancel:
+// 				msgBox.setText(QString("Try to rename it"));
+// 				msgBox.exec();
+// 				msgBox.setDefaultButton(QMessageBox::Ok);
+// 				break;
+// 			default:
+//				break;
+// 			}
+ 		}
 	}
 
 	void BoDucApp::readFiles( const std::list<std::string>& aFilesNameWithPath, const std::string& aSplitBill)
@@ -268,74 +377,5 @@ namespace bdGui
 		// of command with key value the name of the file
 		return 0; // debugging purpose
 	}
-
-#if 0
-	void BoDucParsingAlgo::readFile(const std::string& aFileAnPath, const std::string& aSplitBill)
-	{
-		using namespace std;
-		using namespace boost;
-		using namespace boost::algorithm;
-
-		// create alias
-		using vecofstr = std::vector<std::string>;
-
-		// declare vector to store our string from cvs document 
-		vecofstr w_vecStr;
-		w_vecStr.reserve(50); // reserve enough space for storing each line ??
-
-    // Command in one file, reading the command by splitting with the "Ordered on"
-		short i(0);
-		ifstream w_readVSV(aFileAnPath.c_str());
-		if (w_readVSV) // check if its open, then read line-by-line 
-		{
-			for (string line; std::getline(w_readVSV, line);)
-			{
-				if (i == 0) // first line is obsolete
-				{
-					// check if contains "Ordered on" as first line
-					// NOTE "request-2.csv" we split the bill with this token, 
-					// and format was that first line contains this string
-					if (contains(line, "Ordered on"))
-					{
-						++i;  // next line
-						continue; // i don't see why we should increment it
-					}
-				}//if(i==0)
-				w_vecStr.push_back(line);
-
-				// NOTE we assume that we are at the last line of the command
-				// then we check if the carrier string name is part of the whole 
-				// command (if so, add it to the map otherwise skip it)
-				// IMPORTANT this algorithm assume that we are at the end or the 
-				// last line (split into separate command is based on this assumption)
-				// if not the case then it won't work!!
-				if (contains(line, aSplitBill))
-				{
-					// check for carrier name some are different and don't need to be treated
-					// Francois mentioned that field can be blank, need to be careful
-					// Also, we must check also for the "TM" tonne metrique, if not present
-					// the cmd is discarded
-					if (any_of(w_vecStr.cbegin(), w_vecStr.cend(),
-						[](const std::string& aStr2Look) -> bool     // lambda (anonymous) function
-					{
-						return (contains(aStr2Look, "NIR R-117971-3 TRSP CPB INC")
-							|| contains(aStr2Look, "NIR R-117971-3 TRANSPORT CPB")); // sometime we have empty (blank field) string
-					}
-					)//any_of
-						)//if
-					{
-						m_mapintVec.insert(make_pair(i++, w_vecStr));
-						w_vecStr.clear();
-					}
-					else
-					{
-						/*w_mapofCmd.insert(std::make_pair(i++,w_vecStr));*/
-						w_vecStr.clear();
-					}
-				}
-			}//for-loop
-		}//if
-	}
-#endif
 } // End of namespace
 
